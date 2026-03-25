@@ -10,28 +10,28 @@ def run_all_tests():
 
     test_cases = [
         {
-            "name": "TC1 - Typical Cold",
-            "symptoms": {"sneezing", "runny_nose", "sore_throat", "cough"},
-            "expected": {"Common Cold"},
+            "name": "TC1 - Typical Gastroenteritis",
+            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain"},
+            "expected": {"Gastroenteritis"},
         },
         {
-            "name": "TC2 - Typical Flu",
-            "symptoms": {"high_fever", "body_ache", "fatigue", "headache", "chills"},
-            "expected": {"Flu"},
+            "name": "TC2 - Typical Food Poisoning",
+            "symptoms": {"fever", "cramps", "diarrhea", "vomiting", "headache"},
+            "expected": {"Food Poisoning"},
         },
         {
-            "name": "TC3 - Typical Allergies",
-            "symptoms": {"sneezing", "runny_nose", "itchy_eyes", "no_fever"},
-            "expected": {"Allergies"},
+            "name": "TC3 - Typical IBS",
+            "symptoms": {"abdominal_pain", "bloating", "loss_of_appetite", "fatigue", "dizziness"},
+            "expected": {"Irritable Bowel Syndrome"},
         },
         {
-            "name": "TC4 - Cold and Allergies Overlap",
-            "symptoms": {"sneezing", "runny_nose", "itchy_eyes", "sore_throat", "cough", "no_fever"},
-            "expected": {"Common Cold", "Allergies"},
+            "name": "TC4 - Gastroenteritis and Food Poisoning Overlap",
+            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain", "fever", "cramps", "headache"},
+            "expected": {"Gastroenteritis", "Food Poisoning"},
         },
         {
             "name": "TC5 - Insufficient Evidence",
-            "symptoms": {"headache"},
+            "symptoms": {"dizziness"},
             "expected": set(),
         },
     ]

@@ -8,19 +8,19 @@ from medical_expert_system import diagnose
 
 
 SYMPTOM_FIELDS = [
-    ("sneezing", "Sneezing"),
-    ("runny_nose", "Runny nose"),
-    ("sore_throat", "Sore throat"),
-    ("cough", "Cough"),
-    ("nasal_congestion", "Nasal congestion"),
-    ("mild_fever", "Mild fever"),
-    ("high_fever", "High fever"),
-    ("no_fever", "No fever"),
-    ("body_ache", "Body ache"),
+    ("nausea", "Nausea"),
+    ("vomiting", "Vomiting"),
+    ("diarrhea", "Diarrhea"),
+    ("abdominal_pain", "Abdominal pain"),
+    ("bloating", "Bloating"),
     ("fatigue", "Fatigue"),
+    ("loss_of_appetite", "Loss of appetite"),
+    ("dehydration", "Dehydration"),
+    ("fever", "Fever"),
+    ("no_fever", "No fever"),
+    ("cramps", "Stomach cramps"),
     ("headache", "Headache"),
-    ("chills", "Chills"),
-    ("itchy_eyes", "Itchy eyes"),
+    ("dizziness", "Dizziness"),
 ]
 
 
@@ -81,7 +81,7 @@ class ExpertSystemGUI:
         clear_btn = tk.Button(button_bar, text="Clear", width=14, command=self.on_clear)
         clear_btn.pack(side="left", padx=4)
 
-        sample_btn = tk.Button(button_bar, text="Load Flu Example", width=16, command=self.load_flu_example)
+        sample_btn = tk.Button(button_bar, text="Load Food Poisoning Example", width=25, command=self.load_food_poisoning_example)
         sample_btn.pack(side="left", padx=4)
 
         self.result_label = tk.Label(
@@ -129,7 +129,7 @@ class ExpertSystemGUI:
         ]
 
         if "input_conflict" in result["final_facts"]:
-            details.append("\nWarning: Inconsistent fever input (high fever + no fever).")
+            details.append("\nWarning: Inconsistent fever input (fever + no fever).")
 
         self._set_trace_text("\n".join(details))
 
@@ -139,8 +139,8 @@ class ExpertSystemGUI:
         self.result_label.config(text="Possible Diagnosis: -", fg="#0b3d91")
         self._set_trace_text("Reasoning trace will appear here after diagnosis.\n")
 
-    def load_flu_example(self) -> None:
-        example = {"high_fever", "body_ache", "fatigue", "headache", "chills"}
+    def load_food_poisoning_example(self) -> None:
+        example = {"fever", "cramps", "diarrhea", "vomiting", "headache"}
         for code, var in self.symptom_vars.items():
             var.set(code in example)
 

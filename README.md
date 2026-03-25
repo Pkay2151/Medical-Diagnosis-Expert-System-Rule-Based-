@@ -1,15 +1,15 @@
-# Medical Diagnosis Expert System (Rule-Based)
+# Medical Gastrointestinal Diagnosis Expert System (Rule-Based)
 
-A beginner-friendly academic project that diagnoses simple diseases using:
+A beginner-friendly academic project that diagnoses gastrointestinal diseases using:
 - Rule-based knowledge representation (IF-THEN)
 - Forward chaining inference
 - Explainable reasoning trace
 - CLI and desktop GUI interfaces
 
 Diseases covered:
-- Common Cold
-- Flu
-- Allergies
+- Gastroenteritis
+- Food Poisoning
+- Irritable Bowel Syndrome (IBS)
 
 ## Project Structure
 
@@ -44,25 +44,33 @@ d:\33/
 
 Implemented rules (`R1` to `R14`) in `knowledge_base.py`:
 
-1. IF `sneezing` AND `runny_nose` THEN `cold_pattern_a`
-2. IF `sore_throat` AND `cough` THEN `upper_respiratory_irritation`
-3. IF `upper_respiratory_irritation` AND `cold_pattern_a` THEN `diagnosis:cold`
-4. IF `cough` AND `mild_fever` AND `nasal_congestion` THEN `cold_pattern_b`
-5. IF `cold_pattern_b` AND `sore_throat` THEN `diagnosis:cold`
-6. IF `high_fever` AND `body_ache` THEN `flu_pattern_a`
-7. IF `fatigue` AND `headache` AND `chills` THEN `flu_pattern_b`
-8. IF `flu_pattern_a` AND `flu_pattern_b` THEN `diagnosis:flu`
-9. IF `flu_pattern_a` AND `cough` THEN `diagnosis:flu`
-10. IF `sneezing` AND `itchy_eyes` THEN `allergy_pattern_a`
-11. IF `runny_nose` AND `itchy_eyes` AND `no_fever` THEN `allergy_pattern_b`
-12. IF `allergy_pattern_a` AND `runny_nose` THEN `diagnosis:allergies`
-13. IF `allergy_pattern_b` AND `sneezing` THEN `diagnosis:allergies`
-14. IF `high_fever` AND `no_fever` THEN `input_conflict`
+**Gastroenteritis (R1-R5):**
+1. IF `nausea` AND `vomiting` THEN `acute_gi_pattern_a`
+2. IF `diarrhea` AND `abdominal_pain` THEN `bowel_dysfunction`
+3. IF `acute_gi_pattern_a` AND `bowel_dysfunction` THEN `diagnosis:gastroenteritis`
+4. IF `vomiting` AND `fever` AND `dehydration` THEN `acute_gi_pattern_b`
+5. IF `acute_gi_pattern_b` AND `diarrhea` THEN `diagnosis:gastroenteritis`
+
+**Food Poisoning (R6-R9):**
+6. IF `fever` AND `cramps` THEN `food_poison_pattern_a`
+7. IF `diarrhea` AND `vomiting` AND `headache` THEN `food_poison_pattern_b`
+8. IF `food_poison_pattern_a` AND `food_poison_pattern_b` THEN `diagnosis:food_poisoning`
+9. IF `food_poison_pattern_a` AND `nausea` THEN `diagnosis:food_poisoning`
+
+**IBS (R10-R13):**
+10. IF `abdominal_pain` AND `bloating` THEN `ibs_pattern_a`
+11. IF `loss_of_appetite` AND `fatigue` AND `dizziness` THEN `ibs_pattern_b`
+12. IF `ibs_pattern_a` AND `diarrhea` THEN `diagnosis:ibs`
+13. IF `ibs_pattern_b` AND `abdominal_pain` THEN `diagnosis:ibs`
+
+**Validation (R14):**
+14. IF `fever` AND `no_fever` THEN `input_conflict`
 
 Consistency notes:
 - Multiple rules can support the same diagnosis (robustness).
 - No rules negate or overwrite another diagnosis directly.
 - `R14` flags inconsistent fever input instead of forcing a disease diagnosis.
+- Symptom set: nausea, vomiting, diarrhea, abdominal_pain, bloating, fatigue, loss_of_appetite, dehydration, fever, no_fever, cramps, headache, dizziness
 
 ## 3. Inference Engine
 
@@ -128,10 +136,10 @@ python gui_app.py
 ```
 
 GUI features:
-- Symptom checkboxes
+- Symptom checkboxes (13 Gastrointestinal symptoms)
 - Diagnose button
 - Clear button
-- Sample Flu preset button
+- Load Food Poisoning Example preset button
 - Diagnosis result panel
 - Scrollable reasoning trace
 
@@ -144,10 +152,10 @@ python test_runner.py
 ```
 
 Cases covered:
-1. Typical Cold -> Expected: Common Cold
-2. Typical Flu -> Expected: Flu
-3. Typical Allergies -> Expected: Allergies
-4. Cold + Allergies overlap -> Expected: Common Cold, Allergies
+1. Typical Gastroenteritis -> Expected: Gastroenteritis
+2. Typical Food Poisoning -> Expected: Food Poisoning
+3. Typical IBS -> Expected: Irritable Bowel Syndrome
+4. Gastroenteritis + Food Poisoning overlap -> Expected: Gastroenteritis, Food Poisoning
 5. Insufficient evidence -> Expected: No clear diagnosis
 
 ## 7. Report-Friendly Explanation

@@ -76,19 +76,19 @@ def collect_user_symptoms() -> Set[str]:
     print("\nEnter patient symptoms (y/n):")
 
     symptom_questions = [
-        ("sneezing", "Sneezing?"),
-        ("runny_nose", "Runny nose?"),
-        ("sore_throat", "Sore throat?"),
-        ("cough", "Cough?"),
-        ("nasal_congestion", "Nasal congestion?"),
-        ("mild_fever", "Mild fever?"),
-        ("high_fever", "High fever?"),
-        ("no_fever", "No fever?"),
-        ("body_ache", "Body ache?"),
+        ("nausea", "Nausea?"),
+        ("vomiting", "Vomiting?"),
+        ("diarrhea", "Diarrhea?"),
+        ("abdominal_pain", "Abdominal pain?"),
+        ("bloating", "Bloating?"),
         ("fatigue", "Fatigue?"),
+        ("loss_of_appetite", "Loss of appetite?"),
+        ("dehydration", "Dehydration?"),
+        ("fever", "Fever?"),
+        ("no_fever", "No fever?"),
+        ("cramps", "Stomach cramps?"),
         ("headache", "Headache?"),
-        ("chills", "Chills?"),
-        ("itchy_eyes", "Itchy eyes?"),
+        ("dizziness", "Dizziness?"),
     ]
 
     symptoms: Set[str] = set()
@@ -119,7 +119,7 @@ def display_result(result: Dict[str, object]) -> None:
     print(result["reasoning"])
 
     if "input_conflict" in result["final_facts"]:
-        print("\nWarning: Inconsistent fever input detected (both high fever and no fever).")
+        print("\nWarning: Inconsistent fever input detected (both fever and no fever).")
 
 
 def run_cli() -> None:
@@ -134,7 +134,7 @@ def run_cli() -> None:
     """
 
     print("Medical Diagnosis Expert System (Rule-Based)")
-    print("Diseases covered: Cold, Flu, Allergies")
+    print("Diseases covered: Gastroenteritis, Irritable Bowel Syndrome, Food Poisoning")
 
     symptoms = collect_user_symptoms()
     result = diagnose(symptoms)
@@ -150,28 +150,28 @@ def run_test_cases() -> None:
 
     test_cases = [
         {
-            "name": "TC1 - Typical Cold",
-            "symptoms": {"sneezing", "runny_nose", "sore_throat", "cough"},
-            "expected": {"Common Cold"},
+            "name": "TC1 - Typical Gastroenteritis",
+            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain"},
+            "expected": {"Gastroenteritis"},
         },
         {
-            "name": "TC2 - Typical Flu",
-            "symptoms": {"high_fever", "body_ache", "fatigue", "headache", "chills"},
-            "expected": {"Flu"},
+            "name": "TC2 - Typical Food Poisoning",
+            "symptoms": {"fever", "cramps", "diarrhea", "vomiting", "headache"},
+            "expected": {"Food Poisoning"},
         },
         {
-            "name": "TC3 - Typical Allergies",
-            "symptoms": {"sneezing", "runny_nose", "itchy_eyes", "no_fever"},
-            "expected": {"Allergies"},
+            "name": "TC3 - Typical IBS",
+            "symptoms": {"abdominal_pain", "bloating", "loss_of_appetite", "fatigue", "dizziness"},
+            "expected": {"Irritable Bowel Syndrome"},
         },
         {
-            "name": "TC4 - Cold and Allergies Overlap",
-            "symptoms": {"sneezing", "runny_nose", "itchy_eyes", "sore_throat", "cough", "no_fever"},
-            "expected": {"Common Cold", "Allergies"},
+            "name": "TC4 - Gastroenteritis and Food Poisoning Overlap",
+            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain", "fever", "cramps", "headache"},
+            "expected": {"Gastroenteritis", "Food Poisoning"},
         },
         {
             "name": "TC5 - Insufficient Evidence",
-            "symptoms": {"headache"},
+            "symptoms": {"dizziness"},
             "expected": set(),
         },
     ]

@@ -65,9 +65,9 @@ def extract_diagnoses(facts: Set[str]) -> List[str]:
     """
 
     diagnosis_map = {
-        "diagnosis:cold": "Common Cold",
-        "diagnosis:flu": "Flu",
-        "diagnosis:allergies": "Allergies",
+        "diagnosis:gastroenteritis": "Gastroenteritis",
+        "diagnosis:ibs": "Irritable Bowel Syndrome",
+        "diagnosis:food_poisoning": "Food Poisoning",
     }
 
     # Extract only diagnosis facts and map to readable names
