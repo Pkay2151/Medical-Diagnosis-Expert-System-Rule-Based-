@@ -1,7 +1,6 @@
 """
 Inference Engine - Forward Chaining Algorithm
 
-Implements the core reasoning mechanism for the expert system.
 """
 
 from typing import List, Set, Tuple
@@ -10,28 +9,7 @@ from knowledge_base import Rule
 
 
 def forward_chaining(initial_facts: Set[str], rules: List[Rule]) -> Tuple[Set[str], List[Rule]]:
-    """
-    Apply FORWARD CHAINING inference until no new facts can be inferred.
     
-    KEY CONCEPT - FORWARD CHAINING ALGORITHM:
-    1. Start with known facts (user symptoms)
-    2. Check each rule's IF conditions against current facts
-    3. When a rule's premises ALL match, FIRE it (apply it)
-    4. Add the rule's conclusion as a new fact
-    5. Repeat until NO new facts are added (fixed point reached)
-    
-    This is called "forward" because we start from known facts and work FORWARD
-    towards conclusions, unlike backward chaining which works backward from goals.
-    
-    Args:
-        initial_facts: The starting facts (user-entered symptoms)
-        rules: The knowledge base (all IF-THEN rules)
-    
-    Returns:
-        final_facts: All known and inferred facts after exhausting all rules
-        fired_rules: Rules that were successfully applied, in order (for explanation)
-    """
-
     # Initialize with user symptoms
     facts = set(initial_facts)
     fired_rules: List[Rule] = []
@@ -76,15 +54,7 @@ def extract_diagnoses(facts: Set[str]) -> List[str]:
 
 
 def build_reasoning_trace(fired_rules: List[Rule], diagnoses: List[str]) -> str:
-    """
-    Create a human-readable reasoning report showing the chain of inference.
     
-    KEY CONCEPT - EXPLAINABILITY:
-    Expert systems must show their work! We track which rules fired in order
-    so doctors can understand and verify the diagnosis reasoning.
-    This is crucial for trust and debugging.
-    """
-
     lines: List[str] = []
     lines.append("Reasoning Trace (Forward Chaining):")
 
