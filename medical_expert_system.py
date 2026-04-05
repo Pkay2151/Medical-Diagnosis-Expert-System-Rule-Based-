@@ -1,58 +1,39 @@
 """
-Rule-Based Medical Diagnosis Expert System
-
-Main entry point. Orchestrates knowledge base + inference engine + UI.
+Main entry point for the medical diagnosis expert system.
 """
 
-from collections.abc import Set
-from typing import Dict
+from knowledge_base import SYMPTOM_QUESTIONS, build_knowledge_base
+from inference_engine import (
+    build_reasoning_trace,
+    calculate_confidence_scores,
+    extract_diagnoses,
+    forward_chaining,
+    suggest_possible_conditions,
+)
 
-from knowledge_base import build_knowledge_base
-from inference_engine import forward_chaining, extract_diagnoses, build_reasoning_trace
 
+def diagnose(symptoms: set[str]) -> dict[str, object]:
+    """Run the full diagnosis pipeline."""
 
-
-
-
-def diagnose(symptoms: Set[str]) -> Dict[str, object]:
-    """
-    Run the complete expert system diagnosis pipeline.
-    
-    KEY CONCEPT - MAIN WORKFLOW:
-    1. Load knowledge base (IF-THEN rules)
-    2. Run forward chaining inference from symptoms
-    3. Extract final diagnoses from inferred facts
-    4. Build explanation of reasoning
-    5. Return all results
-    
-    This is the main entry point that orchestrates the entire system.
-    """
-
-    # Step 1: Load all medical knowledge
     rules = build_knowledge_base()
-    
-    # Step 2: Run inference - start from symptoms, apply rules repeatedly
     final_facts, fired_rules = forward_chaining(symptoms, rules)
-    
-    # Step 3: Extract disease diagnoses from final facts
     diagnoses = extract_diagnoses(final_facts)
+    confidence_results = calculate_confidence_scores(symptoms, final_facts)
+    suggestions = suggest_possible_conditions(symptoms, set(diagnoses))
 
-    # Step 4: Package results for display
     return {
         "input_symptoms": sorted(symptoms),
         "final_facts": sorted(final_facts),
         "diagnoses": diagnoses,
         "fired_rules": fired_rules,
-        "reasoning": build_reasoning_trace(fired_rules, diagnoses),
+        "confidence_results": confidence_results,
+        "suggestions": suggestions,
+        "reasoning": build_reasoning_trace(symptoms, fired_rules, confidence_results, suggestions),
     }
 
 
 def ask_yes_no(prompt: str) -> bool:
-    """
-    Prompt user for yes/no input.
-    
-    Simple helper that keeps asking until valid input received.
-    """
+    """Prompt until the user enters y/yes or n/no."""
 
     while True:
         answer = input(prompt).strip().lower()
@@ -63,48 +44,21 @@ def ask_yes_no(prompt: str) -> bool:
         print("Please enter 'y' or 'n'.")
 
 
-def collect_user_symptoms() -> Set[str]:
-    """
-    Collect symptoms from user via CLI prompts.
-    
-    KEY CONCEPT - USER INTERFACE:
-    This function handles the human interaction layer.
-    We ask yes/no questions for each possible symptom
-    and collect only those the user confirms.
-    """
+def collect_user_symptoms() -> set[str]:
+    """Collect symptoms from the user."""
 
     print("\nEnter patient symptoms (y/n):")
+    symptoms: set[str] = set()
 
-    symptom_questions = [
-        ("nausea", "Nausea?"),
-        ("vomiting", "Vomiting?"),
-        ("diarrhea", "Diarrhea?"),
-        ("abdominal_pain", "Abdominal pain?"),
-        ("bloating", "Bloating?"),
-        ("fatigue", "Fatigue?"),
-        ("loss_of_appetite", "Loss of appetite?"),
-        ("dehydration", "Dehydration?"),
-        ("fever", "Fever?"),
-        ("no_fever", "No fever?"),
-        ("cramps", "Stomach cramps?"),
-        ("headache", "Headache?"),
-        ("dizziness", "Dizziness?"),
-    ]
-
-    symptoms: Set[str] = set()
-    for code, question in symptom_questions:
+    for code, question in SYMPTOM_QUESTIONS:
         if ask_yes_no(f"- {question} "):
             symptoms.add(code)
 
     return symptoms
 
 
-def display_result(result: Dict[str, object]) -> None:
-    """
-    Print diagnosis result clearly for CLI users.
-    
-    Shows symptoms, diagnosis, and complete reasoning trace.
-    """
+def display_result(result: dict[str, object]) -> None:
+    """Show diagnosis results and the reasoning trace."""
 
     print("\n--- Expert System Result ---")
     print("Input Symptoms:", ", ".join(result["input_symptoms"]) or "None")
@@ -115,63 +69,78 @@ def display_result(result: Dict[str, object]) -> None:
     else:
         print("Possible Diagnosis: No clear diagnosis")
 
+    confidence_results = result["confidence_results"]
+    if confidence_results:
+        print("Confidence Levels:")
+        for item in confidence_results:
+            print(f"- {item['label']}: {item['score']}%")
+    elif result["suggestions"]:
+        print("Closest Matches:")
+        for item in result["suggestions"]:
+            print(f"- {item['label']}: {item['score']}% symptom overlap")
+
     print()
     print(result["reasoning"])
 
-    if "input_conflict" in result["final_facts"]:
-        print("\nWarning: Inconsistent fever input detected (both fever and no fever).")
-
 
 def run_cli() -> None:
-    """
-    Run the system in interactive CLI mode.
-    
-    KEY CONCEPT - INTERACTIVE SESSION:
-    This function provides the conversational interface where:
-    1. User answers symptom questions
-    2. System runs diagnosis
-    3. Results are displayed with full reasoning
-    """
+    """Launch the interactive command-line interface."""
 
     print("Medical Diagnosis Expert System (Rule-Based)")
-    print("Diseases covered: Gastroenteritis, Irritable Bowel Syndrome, Food Poisoning")
+    print("Diseases covered: Common Cold, Flu, Allergies, Strep Throat, Sinusitis, Bronchitis")
 
-    symptoms = collect_user_symptoms()
-    result = diagnose(symptoms)
-    display_result(result)
+    while True:
+        symptoms = collect_user_symptoms()
+        result = diagnose(symptoms)
+        display_result(result)
+
+        if not ask_yes_no("\nWould you like to diagnose another patient? (y/n): "):
+            print("Exiting expert system.")
+            break
 
 
 def run_test_cases() -> None:
-    """
-    Execute predefined test cases for quick validation.
-    
-    Used to verify the system works correctly without user interaction.
-    """
+    """Run built-in test cases."""
 
     test_cases = [
         {
-            "name": "TC1 - Typical Gastroenteritis",
-            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain"},
-            "expected": {"Gastroenteritis"},
+            "name": "TC1 - Typical Common Cold",
+            "symptoms": {"cough", "sore_throat", "runny_nose", "sneezing"},
+            "expected": {"Common Cold"},
         },
         {
-            "name": "TC2 - Typical Food Poisoning",
-            "symptoms": {"fever", "cramps", "diarrhea", "vomiting", "headache"},
-            "expected": {"Food Poisoning"},
+            "name": "TC2 - Typical Flu",
+            "symptoms": {"fever", "body_ache", "fatigue", "headache"},
+            "expected": {"Flu"},
         },
         {
-            "name": "TC3 - Typical IBS",
-            "symptoms": {"abdominal_pain", "bloating", "loss_of_appetite", "fatigue", "dizziness"},
-            "expected": {"Irritable Bowel Syndrome"},
+            "name": "TC3 - Typical Allergies",
+            "symptoms": {"sneezing", "itchy_eyes", "runny_nose"},
+            "expected": {"Allergies"},
         },
         {
-            "name": "TC4 - Gastroenteritis and Food Poisoning Overlap",
-            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain", "fever", "cramps", "headache"},
-            "expected": {"Gastroenteritis", "Food Poisoning"},
+            "name": "TC4 - Typical Strep Throat",
+            "symptoms": {"fever", "sore_throat", "swollen_glands", "headache"},
+            "expected": {"Strep Throat"},
         },
         {
-            "name": "TC5 - Insufficient Evidence",
-            "symptoms": {"dizziness"},
+            "name": "TC5 - Typical Sinusitis",
+            "symptoms": {"nasal_congestion", "facial_pressure", "headache", "runny_nose"},
+            "expected": {"Sinusitis"},
+        },
+        {
+            "name": "TC6 - Typical Bronchitis",
+            "symptoms": {"cough", "chest_discomfort", "fatigue", "sore_throat"},
+            "expected": {"Bronchitis"},
+        },
+        {
+            "name": "TC7 - Cold and Allergies Overlap",
+            "symptoms": {"cough", "sore_throat", "runny_nose", "sneezing", "itchy_eyes"},
+            "expected": {"Allergies", "Common Cold"},
+        },
+        {
+            "name": "TC8 - Partial Symptoms Only",
+            "symptoms": {"headache"},
             "expected": set(),
         },
     ]
@@ -217,4 +186,3 @@ if __name__ == "__main__":
             print("Run 'python gui_app.py' directly to debug GUI startup.")
     else:
         run_cli()
-

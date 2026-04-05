@@ -1,37 +1,52 @@
 """
-Test runner for Medical Diagnosis Expert System
-Executes all test cases without interactive prompts
+Automated tests for the Medical Diagnosis Expert System.
 """
 
 from medical_expert_system import diagnose
 
-def run_all_tests():
-    """Execute all test cases and report results."""
+
+def run_all_tests() -> None:
+    """Execute test cases and report results."""
 
     test_cases = [
         {
-            "name": "TC1 - Typical Gastroenteritis",
-            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain"},
-            "expected": {"Gastroenteritis"},
+            "name": "TC1 - Typical Common Cold",
+            "symptoms": {"cough", "sore_throat", "runny_nose", "sneezing"},
+            "expected": {"Common Cold"},
         },
         {
-            "name": "TC2 - Typical Food Poisoning",
-            "symptoms": {"fever", "cramps", "diarrhea", "vomiting", "headache"},
-            "expected": {"Food Poisoning"},
+            "name": "TC2 - Typical Flu",
+            "symptoms": {"fever", "body_ache", "fatigue", "headache"},
+            "expected": {"Flu"},
         },
         {
-            "name": "TC3 - Typical IBS",
-            "symptoms": {"abdominal_pain", "bloating", "loss_of_appetite", "fatigue", "dizziness"},
-            "expected": {"Irritable Bowel Syndrome"},
+            "name": "TC3 - Typical Allergies",
+            "symptoms": {"sneezing", "itchy_eyes", "runny_nose"},
+            "expected": {"Allergies"},
         },
         {
-            "name": "TC4 - Gastroenteritis and Food Poisoning Overlap",
-            "symptoms": {"nausea", "vomiting", "diarrhea", "abdominal_pain", "fever", "cramps", "headache"},
-            "expected": {"Gastroenteritis", "Food Poisoning"},
+            "name": "TC4 - Typical Strep Throat",
+            "symptoms": {"fever", "sore_throat", "swollen_glands", "headache"},
+            "expected": {"Strep Throat"},
         },
         {
-            "name": "TC5 - Insufficient Evidence",
-            "symptoms": {"dizziness"},
+            "name": "TC5 - Typical Sinusitis",
+            "symptoms": {"nasal_congestion", "facial_pressure", "headache", "runny_nose"},
+            "expected": {"Sinusitis"},
+        },
+        {
+            "name": "TC6 - Typical Bronchitis",
+            "symptoms": {"cough", "chest_discomfort", "fatigue", "sore_throat"},
+            "expected": {"Bronchitis"},
+        },
+        {
+            "name": "TC7 - Cold and Allergies Overlap",
+            "symptoms": {"cough", "sore_throat", "runny_nose", "sneezing", "itchy_eyes"},
+            "expected": {"Allergies", "Common Cold"},
+        },
+        {
+            "name": "TC8 - Partial Symptoms Only",
+            "symptoms": {"headache"},
             "expected": set(),
         },
     ]
@@ -55,14 +70,20 @@ def run_all_tests():
         else:
             failed += 1
 
-        status = "✓ PASS" if is_pass else "✗ FAIL"
+        status = "[PASS]" if is_pass else "[FAIL]"
         print(f"{case['name']} ... {status}")
         print(f"  Input Symptoms: {', '.join(sorted(case['symptoms'])) or 'None'}")
         print(f"  Expected: {', '.join(sorted(expected)) or 'No clear diagnosis'}")
         print(f"  Actual:   {', '.join(sorted(actual)) or 'No clear diagnosis'}")
 
+        if result["confidence_results"]:
+            confidence_text = ", ".join(
+                f"{item['label']}={item['score']}%" for item in result["confidence_results"]
+            )
+            print(f"  Confidence: {confidence_text}")
+
         if not is_pass:
-            print(f"  Fired Rules: {[r.id for r in result['fired_rules']]}")
+            print(f"  Fired Rules: {[rule.id for rule in result['fired_rules']]}")
 
         print()
 

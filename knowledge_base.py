@@ -1,129 +1,174 @@
 """
-Medical Knowledge Base - IF-THEN Rules for Diagnosis
-
-Stores all the medical rules in one place for easy management and updates.
+Knowledge base for a rule-based medical diagnosis expert system.
 """
 
 from dataclasses import dataclass
-from typing import List, Set
 
 
 @dataclass(frozen=True)
 class Rule:
-    """
-    Represents a single IF-THEN rule in the knowledge base.
-    
-    KEY CONCEPT: Rules are the core of rule-based systems.
-    - id: Unique identifier (e.g., "R1")
-    - premises: SET of conditions that must ALL be true (the IF part)
-    - conclusion: What we infer if premises are met (the THEN part)
-    - explanation: Human-readable description of what this rule means
-    
-    Example: IF nausea AND vomiting THEN acute_gi_pattern_a
-    """
+    """Represents a single IF-THEN rule."""
 
     id: str
-    premises: Set[str]
+    premises: set[str]
     conclusion: str
     explanation: str
 
 
-def build_knowledge_base() -> List[Rule]:
-    """
-    Create the rule base used by the inference engine.
-    
-    KEY CONCEPT - KNOWLEDGE BASE:
-    This is where medical knowledge is stored as IF-THEN rules.
-    The collection of rules represents all the domain expertise we have.
-    In a real system, this might be extracted from medical textbooks or expert interviews.
-    
-    14 rules covering: Gastroenteritis, IBS, Food Poisoning detection patterns.
-    """
+SYMPTOM_QUESTIONS: list[tuple[str, str]] = [
+    ("fever", "Fever?"),
+    ("cough", "Cough?"),
+    ("sore_throat", "Sore throat?"),
+    ("sneezing", "Sneezing?"),
+    ("body_ache", "Body ache?"),
+    ("runny_nose", "Runny nose?"),
+    ("fatigue", "Fatigue?"),
+    ("headache", "Headache?"),
+    ("itchy_eyes", "Itchy eyes?"),
+    ("chills", "Chills?"),
+    ("swollen_glands", "Swollen glands?"),
+    ("nasal_congestion", "Nasal congestion?"),
+    ("facial_pressure", "Facial pressure?"),
+    ("chest_discomfort", "Chest discomfort?"),
+]
 
-    rules = [
+
+DIAGNOSIS_LABELS: dict[str, str] = {
+    "diagnosis:cold": "Common Cold",
+    "diagnosis:flu": "Flu",
+    "diagnosis:allergies": "Allergies",
+    "diagnosis:strep_throat": "Strep Throat",
+    "diagnosis:sinusitis": "Sinusitis",
+    "diagnosis:bronchitis": "Bronchitis",
+}
+
+
+DISEASE_PROFILES: dict[str, set[str]] = {
+    "diagnosis:cold": {"cough", "sore_throat", "runny_nose", "sneezing", "nasal_congestion"},
+    "diagnosis:flu": {"fever", "cough", "body_ache", "fatigue", "headache", "chills"},
+    "diagnosis:allergies": {"sneezing", "runny_nose", "itchy_eyes", "nasal_congestion"},
+    "diagnosis:strep_throat": {"fever", "sore_throat", "headache", "swollen_glands"},
+    "diagnosis:sinusitis": {"headache", "nasal_congestion", "facial_pressure", "runny_nose"},
+    "diagnosis:bronchitis": {"cough", "fatigue", "chest_discomfort", "sore_throat"},
+}
+
+
+def build_knowledge_base() -> list[Rule]:
+    """Create the rule base for common educational demo diagnoses."""
+
+    return [
         Rule(
             id="R1",
-            premises={"nausea", "vomiting"},
-            conclusion="acute_gi_pattern_a",
-            explanation="IF nausea AND vomiting THEN acute Gastrointestinal distress pattern.",
+            premises={"cough", "sore_throat"},
+            conclusion="cold_pattern_a",
+            explanation="IF cough AND sore throat THEN upper respiratory cold pattern.",
         ),
         Rule(
             id="R2",
-            premises={"diarrhea", "abdominal_pain"},
-            conclusion="bowel_dysfunction",
-            explanation="IF diarrhea AND abdominal pain THEN bowel dysfunction.",
+            premises={"runny_nose", "sneezing"},
+            conclusion="cold_pattern_b",
+            explanation="IF runny nose AND sneezing THEN nasal cold pattern.",
         ),
         Rule(
             id="R3",
-            premises={"bowel_dysfunction", "acute_gi_pattern_a"},
-            conclusion="diagnosis:gastroenteritis",
-            explanation="IF bowel dysfunction AND acute Gastrointestinal distress THEN diagnosis is Gastroenteritis.",
+            premises={"cold_pattern_a", "cold_pattern_b"},
+            conclusion="diagnosis:cold",
+            explanation="IF cold pattern A AND cold pattern B THEN diagnosis is Common Cold.",
         ),
         Rule(
             id="R4",
-            premises={"vomiting", "fever", "dehydration"},
-            conclusion="acute_gi_pattern_b",
-            explanation="IF vomiting AND fever AND dehydration THEN acute infectious pattern.",
+            premises={"fever", "body_ache"},
+            conclusion="flu_pattern_a",
+            explanation="IF fever AND body ache THEN influenza body-response pattern.",
         ),
         Rule(
             id="R5",
-            premises={"acute_gi_pattern_b", "diarrhea"},
-            conclusion="diagnosis:gastroenteritis",
-            explanation="IF acute infectious pattern AND diarrhea THEN diagnosis is Gastroenteritis.",
+            premises={"fatigue", "headache"},
+            conclusion="flu_pattern_b",
+            explanation="IF fatigue AND headache THEN influenza fatigue pattern.",
         ),
         Rule(
             id="R6",
-            premises={"fever", "cramps"},
-            conclusion="food_poison_pattern_a",
-            explanation="IF fever AND cramps THEN foodborne illness pattern.",
+            premises={"flu_pattern_a", "flu_pattern_b"},
+            conclusion="diagnosis:flu",
+            explanation="IF flu pattern A AND flu pattern B THEN diagnosis is Flu.",
         ),
         Rule(
             id="R7",
-            premises={"diarrhea", "vomiting", "headache"},
-            conclusion="food_poison_pattern_b",
-            explanation="IF diarrhea AND vomiting AND headache THEN systemic food poison response.",
+            premises={"fever", "cough", "chills"},
+            conclusion="diagnosis:flu",
+            explanation="IF fever AND cough AND chills THEN diagnosis is Flu.",
         ),
         Rule(
             id="R8",
-            premises={"food_poison_pattern_a", "food_poison_pattern_b"},
-            conclusion="diagnosis:food_poisoning",
-            explanation="IF foodborne pattern AND systemic response THEN diagnosis is Food Poisoning.",
+            premises={"sneezing", "itchy_eyes"},
+            conclusion="allergy_pattern_a",
+            explanation="IF sneezing AND itchy eyes THEN allergic irritation pattern.",
         ),
         Rule(
             id="R9",
-            premises={"food_poison_pattern_a", "nausea"},
-            conclusion="diagnosis:food_poisoning",
-            explanation="IF foodborne pattern AND nausea THEN diagnosis is Food Poisoning.",
+            premises={"runny_nose", "allergy_pattern_a"},
+            conclusion="diagnosis:allergies",
+            explanation="IF runny nose AND allergic irritation pattern THEN diagnosis is Allergies.",
         ),
         Rule(
             id="R10",
-            premises={"abdominal_pain", "bloating"},
-            conclusion="ibs_pattern_a",
-            explanation="IF abdominal pain AND bloating THEN IBS pattern A.",
+            premises={"runny_nose", "sneezing", "itchy_eyes"},
+            conclusion="diagnosis:allergies",
+            explanation="IF runny nose AND sneezing AND itchy eyes THEN diagnosis is Allergies.",
         ),
         Rule(
             id="R11",
-            premises={"loss_of_appetite", "fatigue", "dizziness"},
-            conclusion="ibs_pattern_b",
-            explanation="IF loss of appetite AND fatigue AND dizziness THEN IBS pattern B.",
+            premises={"fever", "sore_throat"},
+            conclusion="strep_pattern_a",
+            explanation="IF fever AND sore throat THEN bacterial throat pattern.",
         ),
         Rule(
             id="R12",
-            premises={"ibs_pattern_a", "diarrhea"},
-            conclusion="diagnosis:ibs",
-            explanation="IF IBS pattern A AND diarrhea THEN diagnosis is Irritable Bowel Syndrome.",
+            premises={"swollen_glands", "headache"},
+            conclusion="strep_pattern_b",
+            explanation="IF swollen glands AND headache THEN throat infection support pattern.",
         ),
         Rule(
             id="R13",
-            premises={"ibs_pattern_b", "abdominal_pain"},
-            conclusion="diagnosis:ibs",
-            explanation="IF IBS pattern B AND abdominal pain THEN diagnosis is Irritable Bowel Syndrome.",
+            premises={"strep_pattern_a", "strep_pattern_b"},
+            conclusion="diagnosis:strep_throat",
+            explanation="IF strep pattern A AND strep pattern B THEN diagnosis is Strep Throat.",
         ),
         Rule(
             id="R14",
-            premises={"fever", "no_fever"},
-            conclusion="input_conflict",
-            explanation="IF fever AND no fever THEN inconsistent fever input.",
+            premises={"nasal_congestion", "facial_pressure"},
+            conclusion="sinus_pattern_a",
+            explanation="IF nasal congestion AND facial pressure THEN sinus inflammation pattern.",
+        ),
+        Rule(
+            id="R15",
+            premises={"headache", "runny_nose"},
+            conclusion="sinus_pattern_b",
+            explanation="IF headache AND runny nose THEN sinus support pattern.",
+        ),
+        Rule(
+            id="R16",
+            premises={"sinus_pattern_a", "sinus_pattern_b"},
+            conclusion="diagnosis:sinusitis",
+            explanation="IF sinus pattern A AND sinus pattern B THEN diagnosis is Sinusitis.",
+        ),
+        Rule(
+            id="R17",
+            premises={"cough", "chest_discomfort"},
+            conclusion="bronchitis_pattern_a",
+            explanation="IF cough AND chest discomfort THEN lower airway irritation pattern.",
+        ),
+        Rule(
+            id="R18",
+            premises={"fatigue", "sore_throat"},
+            conclusion="bronchitis_pattern_b",
+            explanation="IF fatigue AND sore throat THEN bronchitis support pattern.",
+        ),
+        Rule(
+            id="R19",
+            premises={"bronchitis_pattern_a", "bronchitis_pattern_b"},
+            conclusion="diagnosis:bronchitis",
+            explanation="IF bronchitis pattern A AND bronchitis pattern B THEN diagnosis is Bronchitis.",
         ),
     ]
-    return rules

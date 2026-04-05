@@ -1,177 +1,109 @@
-# Medical Gastrointestinal Diagnosis Expert System (Rule-Based)
+# Medical Diagnosis Expert System
 
-A beginner-friendly academic project that diagnoses gastrointestinal diseases using:
-- Rule-based knowledge representation (IF-THEN)
-- Forward chaining inference
-- Explainable reasoning trace
-- CLI and desktop GUI interfaces
+Rule-based expert system developed for an Artificial Intelligence project. The system diagnoses three common medical conditions using a knowledge base of IF-THEN rules, a forward chaining inference engine, and both CLI and GUI interfaces.
 
-Diseases covered:
-- Gastroenteritis
-- Food Poisoning
-- Irritable Bowel Syndrome (IBS)
+## Conditions Covered
+
+- Common Cold
+- Flu
+- Allergies
+
+## Core AI Concepts Demonstrated
+
+- Knowledge representation through structured IF-THEN rules
+- Forward chaining inference from user-provided symptoms
+- Explainable reasoning trace showing the order of fired rules
+- Optional confidence scores based on symptom coverage
+- Human-friendly interaction through command line and Tkinter GUI
 
 ## Project Structure
 
 ```text
-d:\33/
-├── knowledge_base.py         # Rule definitions (R1-R14)
-├── inference_engine.py       # Forward chaining + diagnosis extraction
-├── medical_expert_system.py  # Main entry point, CLI, tests
-├── gui_app.py                # Tkinter desktop GUI
-├── test_runner.py            # Automated 5 test cases
-├── README.md                 # Project documentation
-└── __pycache__/              # Auto-generated Python cache
+knowledge_base.py         # Symptoms, disease profiles, IF-THEN rules
+inference_engine.py       # Forward chaining, confidence, reasoning trace
+medical_expert_system.py  # Main program and CLI workflow
+gui_app.py                # Tkinter desktop interface
+test_runner.py            # Automated validation scenarios
+README.md                 # Project overview and usage
 ```
 
-## 1. System Architecture
+## Knowledge Base
 
-### Knowledge Base (`knowledge_base.py`)
-- Stores medical expertise as structured IF-THEN rules.
-- Uses `Rule` dataclass: `id`, `premises`, `conclusion`, `explanation`.
-- Contains 14 logically consistent rules.
+The rule base models common conditions and uses intermediate facts before making a final diagnosis.
 
-### Inference Engine (`inference_engine.py`)
-- `forward_chaining()`: Applies rules repeatedly until no new facts are generated.
-- `extract_diagnoses()`: Maps internal diagnosis facts to readable disease names.
-- `build_reasoning_trace()`: Produces a transparent explanation of fired rules.
+### Common Cold
 
-### User Interface
-- CLI in `medical_expert_system.py`
-- Desktop GUI in `gui_app.py` (Tkinter)
+- IF cough AND sore throat THEN `cold_pattern_a`
+- IF runny nose AND sneezing THEN `cold_pattern_b`
+- IF `cold_pattern_a` AND `cold_pattern_b` THEN diagnosis is Common Cold
 
-## 2. Knowledge Base Design (IF-THEN Rules)
+### Flu
 
-Implemented rules (`R1` to `R14`) in `knowledge_base.py`:
+- IF fever AND body ache THEN `flu_pattern_a`
+- IF fatigue AND headache THEN `flu_pattern_b`
+- IF `flu_pattern_a` AND `flu_pattern_b` THEN diagnosis is Flu
+- IF fever AND cough AND chills THEN diagnosis is Flu
 
-**Gastroenteritis (R1-R5):**
-1. IF `nausea` AND `vomiting` THEN `acute_gi_pattern_a`
-2. IF `diarrhea` AND `abdominal_pain` THEN `bowel_dysfunction`
-3. IF `acute_gi_pattern_a` AND `bowel_dysfunction` THEN `diagnosis:gastroenteritis`
-4. IF `vomiting` AND `fever` AND `dehydration` THEN `acute_gi_pattern_b`
-5. IF `acute_gi_pattern_b` AND `diarrhea` THEN `diagnosis:gastroenteritis`
+### Allergies
 
-**Food Poisoning (R6-R9):**
-6. IF `fever` AND `cramps` THEN `food_poison_pattern_a`
-7. IF `diarrhea` AND `vomiting` AND `headache` THEN `food_poison_pattern_b`
-8. IF `food_poison_pattern_a` AND `food_poison_pattern_b` THEN `diagnosis:food_poisoning`
-9. IF `food_poison_pattern_a` AND `nausea` THEN `diagnosis:food_poisoning`
+- IF sneezing AND itchy eyes THEN `allergy_pattern_a`
+- IF runny nose AND `allergy_pattern_a` THEN diagnosis is Allergies
+- IF runny nose AND sneezing AND itchy eyes THEN diagnosis is Allergies
 
-**IBS (R10-R13):**
-10. IF `abdominal_pain` AND `bloating` THEN `ibs_pattern_a`
-11. IF `loss_of_appetite` AND `fatigue` AND `dizziness` THEN `ibs_pattern_b`
-12. IF `ibs_pattern_a` AND `diarrhea` THEN `diagnosis:ibs`
-13. IF `ibs_pattern_b` AND `abdominal_pain` THEN `diagnosis:ibs`
+## Inference Process
 
-**Validation (R14):**
-14. IF `fever` AND `no_fever` THEN `input_conflict`
+1. The user selects symptoms.
+2. The system stores them as initial facts.
+3. Forward chaining checks all rules repeatedly.
+4. Matching rules fire and add new facts.
+5. The process stops when no more facts can be inferred.
+6. Diagnosis labels, confidence scores, and reasoning trace are displayed.
 
-Consistency notes:
-- Multiple rules can support the same diagnosis (robustness).
-- No rules negate or overwrite another diagnosis directly.
-- `R14` flags inconsistent fever input instead of forcing a disease diagnosis.
-- Symptom set: nausea, vomiting, diarrhea, abdominal_pain, bloating, fatigue, loss_of_appetite, dehydration, fever, no_fever, cramps, headache, dizziness
+## How to Run
 
-## 3. Inference Engine
-
-### Forward Chaining Steps
-
-1. Start with user symptoms as initial facts.
-2. Scan all rules.
-3. Fire rules whose premises are fully satisfied.
-4. Add rule conclusions as new facts.
-5. Repeat until no new facts can be added.
-6. Extract diagnosis facts and show reasoning trace.
-
-### Pseudocode
-
-```text
-facts <- user_symptoms
-fired_rules <- []
-changed <- true
-
-WHILE changed:
-    changed <- false
-    FOR each rule in knowledge_base:
-        IF rule.premises subset of facts AND rule.conclusion not in facts:
-            add rule.conclusion to facts
-            append rule to fired_rules
-            changed <- true
-
-return facts, fired_rules
-```
-
-Actual implementation:
-- `inference_engine.py`: `forward_chaining(...)`
-- `medical_expert_system.py`: `diagnose(...)`
-
-## 4. Implementation Notes
-
-- Clean modular design (separation of concerns).
-- Rule structure via `Rule` dataclass.
-- Explainable outputs through reasoning trace.
-- Beginner-friendly function naming and flow.
-
-## 5. User Interface
-
-### CLI
-
-Run:
+### Run the main program
 
 ```bash
 python medical_expert_system.py
 ```
 
-Menu options:
-- `1`: Interactive diagnosis (CLI prompts)
-- `2`: Run built-in test cases
-- `3`: Launch desktop GUI
+Modes:
 
-### Desktop GUI
+- `1`: Interactive CLI diagnosis
+- `2`: Built-in test cases
+- `3`: Desktop GUI
 
-Run directly:
+### Run the GUI directly
 
 ```bash
 python gui_app.py
 ```
 
-GUI features:
-- Symptom checkboxes (13 Gastrointestinal symptoms)
-- Diagnose button
-- Clear button
-- Load Food Poisoning Example preset button
-- Diagnosis result panel
-- Scrollable reasoning trace
-
-## 6. Testing (5 Cases)
-
-Run:
+### Run automated tests
 
 ```bash
 python test_runner.py
 ```
 
-Cases covered:
-1. Typical Gastroenteritis -> Expected: Gastroenteritis
-2. Typical Food Poisoning -> Expected: Food Poisoning
-3. Typical IBS -> Expected: Irritable Bowel Syndrome
-4. Gastroenteritis + Food Poisoning overlap -> Expected: Gastroenteritis, Food Poisoning
-5. Insufficient evidence -> Expected: No clear diagnosis
+## Sample Test Scenarios
 
-## 7. Report-Friendly Explanation
+- Typical Common Cold
+- Typical Flu
+- Typical Allergies
+- Overlap between Cold and Allergies
+- Insufficient evidence
 
-### How It Works (Simple)
-The user provides symptoms. The system applies IF-THEN rules repeatedly using forward chaining. Each matched rule adds a new fact. When no more facts can be inferred, the system reports possible diagnoses and explains which rules fired.
+## Limitations
 
-### Limitations
-- Only 3 diseases are modeled.
-- No confidence/probability scoring.
-- No temporal analysis (symptom duration/severity progression).
-- Educational prototype; not a clinical tool.
+- Educational system only and not a medical device
+- Covers only three conditions
+- Confidence is heuristic, not clinical probability
+- Does not consider symptom duration, age, or patient history
 
-### Possible Improvements
-- Add more diseases and symptom sets.
-- Add confidence scores and ranking.
-- Include age/history/risk-factor rules.
-- Add PDF export for diagnosis reports.
-- Build a web version (Flask/FastAPI frontend).
+## Possible Improvements
+
+- Add more diseases and medical rules
+- Support follow-up questions based on previous answers
+- Add symptom duration and severity handling
+- Export diagnosis reports for documentation
+- Build a web-based interface
